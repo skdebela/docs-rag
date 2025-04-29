@@ -1,16 +1,12 @@
 import React from 'react';
-import { HStack, Icon, Text, Box } from '@chakra-ui/react';
-import { FaFileAlt } from 'react-icons/fa';
-
+import { HStack, Icon, Text, Box, IconButton } from '@chakra-ui/react';
+import { FaFileAlt, FaTrash } from 'react-icons/fa';
 import { FileMeta } from '../../state/filesStore';
 
 const getFileExt = (filename: string) => {
   const parts = filename.split('.');
   return parts.length > 1 ? parts.pop()?.toLowerCase() : '';
 };
-
-import { IconButton } from '@chakra-ui/react';
-import { FaTrash } from 'react-icons/fa';
 
 type FilePillProps = {
   file: FileMeta;
@@ -36,7 +32,5 @@ const FilePill = ({ file, onDelete, deleting }: FilePillProps) => (
     )}
   </HStack>
 );
-
-
 
 export default FilePill;

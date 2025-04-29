@@ -25,7 +25,8 @@ export const useFilesStore = create<FilesState>((set) => ({
   error: null,
   setFiles: (files) => set({ files }),
   addFile: (file) => set((state) => ({ files: [...state.files, file] })),
-  removeFile: (id) => set((state) => ({ files: state.files.filter((f) => f.id !== id) })),
+  // Only remove from local state after backend confirms deletion
+removeFile: (id) => set((state) => ({ files: state.files.filter((f) => f.id !== id) })),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
   clearFiles: () => set({ files: [] }),

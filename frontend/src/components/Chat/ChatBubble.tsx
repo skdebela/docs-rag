@@ -29,6 +29,8 @@ const ChatBubble = ({ message }: { message: ChatMessage }) => {
         maxW="70%"
         boxShadow="sm"
         alignSelf={isUser ? 'flex-end' : 'flex-start'}
+        ml={isUser ? { base: 6, md: 16 } : 0}
+        mr={!isUser ? { base: 6, md: 16 } : 0}
       >
         <Text>{message.text}</Text>
         {message.sources && message.sources.length > 0 && (() => {

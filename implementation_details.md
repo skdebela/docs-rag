@@ -28,6 +28,36 @@
 - **Gemini-style UI/UX**: Clean, minimal, and accessible design with clear separation between chat and file controls, as per project requirements.
 - **Rationale**: These patterns prevent state desync, provide clear user feedback, and ensure maintainability as backend evolves.
 
+### Chat Context and File Deletion Policy (2025-04-29)
+
+#### App Reset & Sync Policy (2025-04-29)
+- **Admin Reset:** The backend exposes `/api/admin/clear_all` (token-protected) to delete all files and chat history from the DB and vectorstore. The frontend provides an AdminPanel with a reset button for safe access.
+- **DB is Source of Truth:** The files table in the DB is always authoritative. The vectorstore must be kept in sync with the DB. All file and chat deletions update both DB and vectorstore, with `persist()` and vectorstore reload for Chroma.
+- **Reset Flow:** On reset, DB and vectorstore are both wiped, and the UI is refreshed. This guarantees a fresh, in-sync state for uploads and chat.
+- **Rationale:** Prevents desync bugs where deleted files linger in chat results. See gotchas.md for historical issues.
+
+
+#### ChromaDB/LangChain Deletion Gotcha (2025-04-29)
+- **Problem:** Deleted files may still be referenced in RAG results even after calling vectorstore.delete().
+- **Root Causes:**
+    - Not calling `persist()` after deletion (Chroma keeps changes in memory until persisted).
+    - Not reloading/reinitializing the vectorstore after deletion (in-memory cache may still contain deleted docs).
+    - Metadata mismatch or improper indexing.
+- **Patch/Best Practice:**
+    - After any vectorstore deletion, always call `persist()` to write changes to disk.
+    - Immediately reinitialize the vectorstore object to clear any in-memory cache.
+    - Always index metadata fields (like file_id, filename) used for deletion.
+    - See: [LangChain Chroma deletion issue #4519](https://github.com/langchain-ai/langchain/issues/4519), [Chroma vectorstore deletion discussion](https://github.com/langchain-ai/langchain/discussions/9495)
+- **Status:**
+    - This patch is now implemented in `main.py`—deleted files are fully removed from both DB and vectorstore, and will not appear in future chat results.
+
+
+- The chat context always includes **all files currently loaded in the sidebar** (i.e., all files present in the DB and not deleted).
+- When a file is deleted from the sidebar:
+    - All references to it in the database and vectorstore must be fully removed.
+    - It must never appear in chat results or sources after deletion.
+- This is the default and intended behavior for the RAG pipeline and chat UX.
+
 ### Chat Architecture (2025-04-29)
 - **Async chat flow**: Zustand store exposes async `sendChat`, which sends user message to backend and only updates messages after backend response (AI answer and sources).
 - **Loading/Error state**: Store tracks loading and error, UI disables input and shows spinner while waiting, and displays errors via toast/alert.

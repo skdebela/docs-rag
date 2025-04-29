@@ -30,7 +30,7 @@ export const useChatStore = create<ChatState>((set) => ({
     try {
       // Add user message
       set((state) => ({ messages: [...state.messages, { sender: 'user', text: question }] }));
-      const response = await sendChatApi(fileId, question);
+      const response = await sendChatApi(null, question);
       set((state) => ({
         messages: [...state.messages, { sender: 'ai', text: response.answer, sources: response.sources }],
         loading: false,
