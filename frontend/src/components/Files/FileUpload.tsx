@@ -18,6 +18,10 @@ const FileUpload = () => {
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     for (const file of acceptedFiles) {
+      if (!file.name) {
+        setError('File name is missing.');
+        continue;
+      }
       const ext = file.name.split('.').pop()?.toLowerCase();
       if (!ext || !SUPPORTED_EXTENSIONS.includes(ext)) {
         toast({ title: 'Unsupported file type', status: 'error', duration: 4000 });

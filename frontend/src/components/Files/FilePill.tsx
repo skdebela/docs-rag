@@ -3,7 +3,8 @@ import { HStack, Icon, Text, Box, IconButton } from '@chakra-ui/react';
 import { FaFileAlt, FaTrash } from 'react-icons/fa';
 import { FileMeta } from '../../state/filesStore';
 
-const getFileExt = (filename: string) => {
+const getFileExt = (filename?: string) => {
+  if (!filename) return '';
   const parts = filename.split('.');
   return parts.length > 1 ? parts.pop()?.toLowerCase() : '';
 };

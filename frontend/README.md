@@ -2,6 +2,12 @@
 
 This is the frontend for the Chat with Files application, built with Vite, React, TypeScript, Zustand, and Chakra UI. It implements a Gemini-style UI for seamless document upload and chat functionality.
 
+## Markdown Rendering for Chat Responses
+
+- The chat UI now renders LLM answers as formatted markdown using the [react-markdown](https://github.com/remarkjs/react-markdown) package.
+- **Install:** `npm install react-markdown`
+- **Rationale:** Ensures all AI responses are easy to read, with proper headings, lists, and code formatting.
+
 ## Project Structure
 
 ```

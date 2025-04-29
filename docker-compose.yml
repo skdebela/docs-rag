@@ -1,0 +1,43 @@
+services:
+  backend:
+    build: ./backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./data/files:/app/data/files
+      - ./data/chroma_db:/app/data/chroma_db
+    environment:
+      - CHROMA_HOST=chroma
+      - OLLAMA_HOST=ollama
+      - CHAT_RAG_ADMIN_TOKEN=${CHAT_RAG_ADMIN_TOKEN}
+    depends_on:
+      - chroma
+      - ollama
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    command: npx serve -s dist -l 5173
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+
+  chroma:
+    image: chromadb/chroma:latest
+    volumes:
+      - ./data/chroma_db:/chroma/chroma_db
+    ports:
+      - "8001:8000"
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_models:/root/.ollama
+    ports:
+      - "11434:11434"
+    entrypoint: >
+      sh -c "ollama serve & sleep 5 && ollama pull mistral:latest && wait"
+
+volumes:
+  ollama_models:

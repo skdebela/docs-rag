@@ -64,3 +64,6 @@ _Last updated: 2025-04-29_
 [2025-04-29T15:19:00.131512] [DeleteFile] Vectorstore delete by file_id (where) error: 'Chroma' object has no attribute 'persist'
 [2025-04-29T15:26:52.777473] [DeleteFile] File 1 deleted successfully at 2025-04-29T15:26:52.777461
 [2025-04-29T15:28:22.541520] [AdminClearAll] All files and chats deleted at 2025-04-29T15:28:22.541509
+[2025-04-29T17:04:40.749134] [DeleteFile] File 1 deleted successfully at 2025-04-29T17:04:40.749120
+[2025-04-29T20:08:18.438366] [DeleteFile] File 2 deleted successfully at 2025-04-29T20:08:18.438356
+[2025-04-29T20:08:20.308304] [DeleteFile] File 1 deleted successfully at 2025-04-29T20:08:20.308289

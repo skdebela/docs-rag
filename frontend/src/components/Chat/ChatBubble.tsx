@@ -1,7 +1,7 @@
 import { Box, Text, HStack, Icon } from '@chakra-ui/react';
 import { FaRobot, FaUser } from 'react-icons/fa';
-
 import React from 'react';
+import ReactMarkdown from 'react-markdown'; // For markdown rendering
 
 interface SourceMeta {
   filename?: string;
@@ -32,7 +32,8 @@ const ChatBubble = ({ message }: { message: ChatMessage }) => {
         ml={isUser ? { base: 6, md: 16 } : 0}
         mr={!isUser ? { base: 6, md: 16 } : 0}
       >
-        <Text>{message.text}</Text>
+        {/* Render markdown-formatted LLM answers */}
+        <ReactMarkdown>{message.text}</ReactMarkdown>
         {message.sources && message.sources.length > 0 && (() => {
           // Deduplicate sources by their display string
           const uniqueSources = Array.from(
