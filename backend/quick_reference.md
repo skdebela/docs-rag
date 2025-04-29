@@ -10,6 +10,7 @@
 ## Vectorstore Persistence
 - Chroma persistence is automatic with `persist_directory` (no `.persist()` method needed).
 
+<!-- Add Docker/database persistence instructions here -->
 ## Required Dependencies
 - `langchain_chroma`
 - `unstructured` (for docx/xlsx parsing)

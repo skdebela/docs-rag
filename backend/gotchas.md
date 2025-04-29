@@ -13,6 +13,9 @@
 
 ---
 
+<!-- Log DB persistence gotcha here -->
+---
+
 ## Action Items
 - Always check for breaking changes in LangChain and Chroma APIs after upgrades.
 - Document any future vectorstore persistence quirks here.

@@ -27,9 +27,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+CHROMA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "./data/chroma_db"))
+os.makedirs(CHROMA_PATH, exist_ok=True)
+
 # Initialize DB and RAG pipeline
 init_db()
-rag_pipeline = RAGPipeline(vector_db_path=os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/chroma_db")))
+rag_pipeline = RAGPipeline(vector_db_path=CHROMA_PATH)
 
 from fastapi import Header
 
