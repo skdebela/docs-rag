@@ -170,7 +170,12 @@ def chat(question: str = Query(...), file_id: int = Query(None), db: Session = D
     docs = [d for d in docs if str(d.metadata.get("file_id")) in current_file_ids]
     # Construct context
     context = "\n\n".join([d.page_content for d in docs])
-    prompt = f"Context:\n{context}\n\nQuestion: {question}\nAnswer:"
+    system_prompt = ("You are a helpful AI assistant. Always answer in well-structured markdown. "
+                     "Use headings, bullet points, spacing and tables where appropriate. "
+                     "Format code and data for maximum readability."
+                     "Keep it concise and to the point."
+                     "If you don't know the answer, say so.\n")
+    prompt = f"{system_prompt}Context:\n{context}\n\nQuestion: {question}\nAnswer:"
     # Call LLM (Ollama)
     try:
         answer = ollama_llm.invoke(prompt)

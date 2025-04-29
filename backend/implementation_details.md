@@ -1,5 +1,16 @@
 # Implementation Details
 
+## Structured Markdown Output for LLM (Chat Endpoint)
+
+- **Context:**
+  - Users requested that all LLM responses be formatted as well-structured markdown for readability and clarity.
+- **Implementation:**
+  - Added a `system_prompt` in `app/main.py`'s `/api/chat` endpoint instructing the LLM to always answer in markdown, using headings, bullet points, and tables where appropriate.
+  - Prompt is prepended to the context and user question before LLM invocation.
+- **Reference:**
+  - See `backend/app/main.py`, `chat` endpoint, `system_prompt` variable.
+- **Date:** 2025-04-29
+
 ## LLM Integration Migration (Backend)
 
 ### ✅ Migration Complete & System Verified
