@@ -4,7 +4,7 @@ import FilesSidebar from '../Files/FilesSidebar';
 import ChatArea from '../Chat/ChatArea';
 
 const MainLayout = () => (
-  <Flex height="100vh" direction="row" bg="#fff">
+  <Flex height="100vh" direction="row" overflow="hidden" bg="#fff">
     <Box width={{ base: '100px', md: '320px' }} bg="#fff" boxShadow="md" zIndex={5}>
       <FilesSidebar />
     </Box>

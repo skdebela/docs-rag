@@ -72,7 +72,7 @@ const FilesSidebar = () => {
           </Alert>
         )}
       </Box>
-      <Box flex={1} overflowY="auto" px={4}>
+      <Box flex={1} px={4}>
         {loading ? (
           <Spinner size="md" mx="auto" my={6} />
         ) : (

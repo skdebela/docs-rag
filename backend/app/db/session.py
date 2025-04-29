@@ -12,7 +12,20 @@ engine = create_engine(f"sqlite:///{DB_PATH}", connect_args={"check_same_thread"
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def init_db():
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+        try:
+            from app.log_utils import safe_log_gotcha
+            safe_log_gotcha("[init_db] Database initialized successfully.")
+        except ImportError:
+            print("[init_db] Database initialized successfully.")
+    except Exception as e:
+        try:
+            from app.log_utils import safe_log_gotcha
+            safe_log_gotcha(f"[init_db] Database initialization failed: {e}")
+        except ImportError:
+            print(f"[init_db] Database initialization failed: {e}")
+        raise
 
 def get_db():
     db = SessionLocal()

@@ -7,7 +7,7 @@ import theme from './styles/theme';
 function App() {
   return (
     <ChakraProvider theme={theme}>
-      <Box height="100vh" bg="gray.50">
+      <Box height="100%" bg="gray.50">
         <Header />
         <MainLayout />
       </Box>

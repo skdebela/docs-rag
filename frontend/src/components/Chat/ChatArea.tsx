@@ -16,7 +16,7 @@ const ChatArea = () => {
   return (
     <Flex direction="column" h="100%" minH={0} flex="1" px={{ base: 2, sm: 4, md: 8 }}>
       {noFiles ? (
-        <Box flex="1" overflowY="auto">
+        <Box flex="1">
           <Alert status="info" borderRadius="md" maxW="sm" mt={6} mx="auto">
             <AlertIcon />
             Please upload a file to start chatting.
@@ -29,7 +29,7 @@ const ChatArea = () => {
               {error}
             </Box>
           )}
-          <VStack spacing={3} align="stretch" flex="1" overflowY="auto">
+          <VStack spacing={3} align="stretch" flex="1">
             {messages.map((msg, idx) => (
               <ChatBubble key={idx} message={msg} />
             ))}
