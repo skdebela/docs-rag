@@ -1,7 +1,7 @@
 import os
 from typing import List
 from langchain_community.document_loaders import PyPDFLoader, UnstructuredWordDocumentLoader, TextLoader, CSVLoader, UnstructuredExcelLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import NLTKTextSplitter, RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_ollama import OllamaEmbeddings
 from langchain_core.documents import Document
@@ -11,7 +11,13 @@ SUPPORTED_EXTENSIONS = {'.pdf', '.docx', '.txt', '.csv', '.xlsx'}
 class RAGPipeline:
     def __init__(self, vector_db_path: str = "./chroma_db"):
         self.vector_db_path = vector_db_path
-        self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+                # Prefer semantic chunking using NLTKTextSplitter (sentence-aware)
+        try:
+            self.text_splitter = NLTKTextSplitter(chunk_size=1000, chunk_overlap=100)
+        except Exception as e:
+            # Fallback to RecursiveCharacterTextSplitter if NLTK not installed
+            print("Warning: NLTK not available, falling back to character-based chunking. Error:", e)
+            self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
         self.embeddings = OllamaEmbeddings(model="nomic-embed-text")  # or sentence-transformers
         self.vectorstore = Chroma(persist_directory=self.vector_db_path, embedding_function=self.embeddings)
 

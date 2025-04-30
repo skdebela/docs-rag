@@ -57,3 +57,6 @@
 [2025-04-30T22:20:31.917450] [init_db] Database initialized successfully.
 [2025-04-30T22:46:27.683850] [init_db] Database initialized successfully.
 [2025-04-30T23:07:41.281882] [init_db] Database initialized successfully.
+[2025-04-30T23:25:50.709204] [init_db] Database initialized successfully.
+[2025-04-30T23:27:20.038590] [init_db] Database initialized successfully.
+[2025-04-30T23:28:03.099300] [DeleteFile] File 1 deleted successfully at 2025-04-30T23:28:03.099273
