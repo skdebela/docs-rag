@@ -55,3 +55,5 @@
 - **Solution:** After any vectorstore deletion, always call `persist()` and reinitialize the vectorstore object. See implementation in `main.py`.
 - **References:** [LangChain Chroma deletion issue #4519](https://github.com/langchain-ai/langchain/issues/4519), [Chroma vectorstore deletion discussion](https://github.com/langchain-ai/langchain/discussions/9495)
 [2025-04-30T22:20:31.917450] [init_db] Database initialized successfully.
+[2025-04-30T22:46:27.683850] [init_db] Database initialized successfully.
+[2025-04-30T23:07:41.281882] [init_db] Database initialized successfully.

@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
-import { useFilesStore } from '../../state/filesStore';
-import { uploadFile } from '../../api/filesApi';
+import { useFilesStore } from 'state/filesStore';
+import { uploadFile } from 'api/filesApi';
 import { useToast } from '@chakra-ui/react';
 
 const SUPPORTED_EXTENSIONS = ['pdf', 'docx', 'txt', 'csv', 'xlsx'];

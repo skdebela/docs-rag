@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Heading, Divider, useToast } from '@chakra-ui/react';
-import { useFilesStore } from '../../state/filesStore';
-import { useChatStore } from '../../state/chatStore';
-import { fetchFiles, deleteFile } from '../../api/filesApi';
-import FileUpload from './FileUpload';
-import FilesList from './FilesList';
-import FileErrorAlert from './FileErrorAlert';
-import AdminPanel from '../AdminPanel';
+import { useFilesStore } from 'state/filesStore';
+import { useChatStore } from 'state/chatStore';
+import { fetchFiles, deleteFile } from 'api/filesApi';
+import { FileUpload, FilesList, FileErrorAlert } from 'components/Files';
+import { AdminPanel } from 'components/Admin';
 
 const FilesSidebar = () => {
   const files = useFilesStore((state) => state.files);
@@ -64,7 +62,7 @@ const FilesSidebar = () => {
   return (
     <Box display="flex" flexDirection="column" h={{ base: '100dvh', md: '100vh' }} minW={{ base: '100vw', md: '320px' }} maxW={{ base: '100vw', md: '400px' }} p={0} bg="white" boxShadow={{ base: 'none', md: 'md' }}>
       <Box p={{ base: 3, md: 4 }} pb={0}>
-        <Heading size="md" mb={4} fontSize={{ base: 'lg', md: 'xl' }}>Files</Heading>
+        <Heading size="md" mb={4} fontSize={{ base: 'lg', md: 'xl' }}>Local RAG</Heading>
         <FileUpload />
         <Divider my={4} />
         <FileErrorAlert error={error} />

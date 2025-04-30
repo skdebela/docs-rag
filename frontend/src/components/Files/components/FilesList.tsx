@@ -1,7 +1,7 @@
 import React from 'react';
 import { VStack, Text, Spinner } from '@chakra-ui/react';
 import FilePill from './FilePill';
-import { FileMeta } from '../../state/filesStore';
+import { FileMeta } from 'state/filesStore';
 
 interface FilesListProps {
   files: FileMeta[];

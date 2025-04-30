@@ -1,7 +1,7 @@
 import React from 'react';
 import { HStack, Icon, Text, Box, IconButton } from '@chakra-ui/react';
 import { FaFileAlt, FaTrash } from 'react-icons/fa';
-import { FileMeta } from '../../state/filesStore';
+import { FileMeta } from 'state/filesStore';
 
 const getFileExt = (filename?: string) => {
   if (!filename) return '';

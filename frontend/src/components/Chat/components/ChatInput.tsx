@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { HStack, Input, IconButton, Spinner, useToast } from '@chakra-ui/react';
 import { FaPaperPlane } from 'react-icons/fa';
-import { useChatStore } from '../../state/chatStore';
-import { useFilesStore } from '../../state/filesStore';
+import { useChatStore } from 'state/chatStore';
+import { useFilesStore } from 'state/filesStore';
 
 // Chat input is disabled if no files are uploaded
 const ChatInput = () => {

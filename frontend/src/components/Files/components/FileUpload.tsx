@@ -2,7 +2,7 @@
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Box, Text, Spinner } from '@chakra-ui/react';
-import { useFileUpload } from './useFileUpload';
+import { useFileUpload } from '../hooks/useFileUpload';
 
 const FileUpload = () => {
   const { onDrop, loading, uploading } = useFileUpload();

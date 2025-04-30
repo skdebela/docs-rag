@@ -1,7 +1,7 @@
 import React from "react";
 import { Flex, Box } from '@chakra-ui/react';
-import FilesSidebar from '../Files/FilesSidebar';
-import ChatArea from '../Chat/ChatArea';
+import { FilesSidebar } from '../Files';
+import { ChatArea } from '../Chat';
 
 const MainLayout = () => (
   <Flex height="100vh" direction="row" overflow="hidden" bg="#fff">

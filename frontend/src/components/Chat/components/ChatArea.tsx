@@ -1,9 +1,9 @@
 import React from 'react';
 import { Box, VStack, Spinner, Flex, Alert, AlertIcon } from '@chakra-ui/react';
-import { useChatStore } from '../../state/chatStore';
+import { useChatStore } from 'state/chatStore';
 import ChatBubble from './ChatBubble';
 import ChatInput from './ChatInput';
-import { useFilesStore } from '../../state/filesStore';
+import { useFilesStore } from 'state/filesStore';
 
 // Show friendly message if no files are uploaded
 const ChatArea = () => {
