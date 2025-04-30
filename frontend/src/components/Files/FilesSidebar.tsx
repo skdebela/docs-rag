@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Heading, VStack, Text, Divider, Spinner, Alert, AlertIcon, useToast } from '@chakra-ui/react';
+import { Box, Heading, Divider, useToast } from '@chakra-ui/react';
 import { useFilesStore } from '../../state/filesStore';
 import { useChatStore } from '../../state/chatStore';
 import { fetchFiles, deleteFile } from '../../api/filesApi';
-import FilePill from './FilePill';
 import FileUpload from './FileUpload';
+import FilesList from './FilesList';
+import FileErrorAlert from './FileErrorAlert';
+import AdminPanel from '../AdminPanel';
 
 const FilesSidebar = () => {
   const files = useFilesStore((state) => state.files);
@@ -60,39 +62,17 @@ const FilesSidebar = () => {
   };
 
   return (
-    <Box display="flex" flexDirection="column" height="100vh" p={0}>
-      <Box p={4} pb={0}>
-        <Heading size="md" mb={4}>Files</Heading>
+    <Box display="flex" flexDirection="column" h={{ base: '100dvh', md: '100vh' }} minW={{ base: '100vw', md: '320px' }} maxW={{ base: '100vw', md: '400px' }} p={0} bg="white" boxShadow={{ base: 'none', md: 'md' }}>
+      <Box p={{ base: 3, md: 4 }} pb={0}>
+        <Heading size="md" mb={4} fontSize={{ base: 'lg', md: 'xl' }}>Files</Heading>
         <FileUpload />
         <Divider my={4} />
-        {error && (
-          <Alert status="error" mb={2} borderRadius="md">
-            <AlertIcon />
-            {error}
-          </Alert>
-        )}
+        <FileErrorAlert error={error} />
       </Box>
-      <Box flex={1} px={4}>
-        {loading ? (
-          <Spinner size="md" mx="auto" my={6} />
-        ) : (
-          <VStack align="stretch" spacing={2}>
-            {(!Array.isArray(files) || files.length === 0) ? (
-              <Text color="gray.400">No files uploaded yet.</Text>
-            ) : (
-              files.map((file) => (
-                <FilePill
-                  key={file.id}
-                  file={file}
-                  onDelete={handleDelete}
-                  deleting={deletingId === file.id}
-                />
-              ))
-            )}
-          </VStack>
-        )}
+      <Box flex={1} px={{ base: 2, md: 4 }} overflowY="auto" minH={0}>
+        <FilesList files={files} loading={loading} deletingId={deletingId} onDelete={handleDelete} />
       </Box>
-      <Box p={4} pt={0} mb={4} borderTopWidth={1} borderColor="gray.100" bg="white" boxShadow="sm" borderRadius="lg">
+      <Box p={{ base: 2, md: 4 }} pt={0} mb={{ base: 2, md: 4 }} borderTopWidth={1} borderColor="gray.100" bg="white" boxShadow="sm" borderRadius="lg">
         <React.Suspense fallback={null}>
           {typeof window !== 'undefined' && <AdminPanel />}
         </React.Suspense>
@@ -101,5 +81,4 @@ const FilesSidebar = () => {
   );
 };
 
-import AdminPanel from '../AdminPanel';
 export default FilesSidebar;

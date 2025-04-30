@@ -13,10 +13,10 @@ const MainLayout = () => (
       display="flex"
       flexDirection="column"
       minWidth={0}
-      justifyContent="center"
-      alignItems="center"
       px={{ base: 2, sm: 4, md: 8 }}
       py={{ base: 2, md: 6 }}
+      height="100vh"
+      overflow="hidden"
     >
       <Box
         w="100%"
@@ -24,6 +24,8 @@ const MainLayout = () => (
         mx="auto"
         display="flex"
         flexDirection="column"
+        flex="1"
+        minHeight={0}
         overflow="hidden"
       >
         <ChatArea />
