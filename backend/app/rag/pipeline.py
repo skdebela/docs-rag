@@ -1,25 +1,45 @@
 import os
-from typing import List
+from typing import List, Dict, Any, Optional
 from langchain_community.document_loaders import PyPDFLoader, UnstructuredWordDocumentLoader, TextLoader, CSVLoader, UnstructuredExcelLoader
-from langchain_text_splitters import NLTKTextSplitter, RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter, MarkdownHeaderTextSplitter
 from langchain_chroma import Chroma
-from langchain_ollama import OllamaEmbeddings
+from langchain_ollama import OllamaEmbeddings, OllamaLLM
 from langchain_core.documents import Document
+import logging
+import asyncio
+
+"""
+Migrated RAG pipeline: modular, advanced, and NLTK-free (2025)
+- See pipeline_modular.py for architecture details.
+"""
 
 SUPPORTED_EXTENSIONS = {'.pdf', '.docx', '.txt', '.csv', '.xlsx'}
 
 class RAGPipeline:
-    def __init__(self, vector_db_path: str = "./chroma_db"):
+    def __init__(self, vector_db_path: str = "./chroma_db", chunking_strategy: str = "auto"):
+        """
+        :param vector_db_path: Path for ChromaDB persistence
+        :param chunking_strategy: 'auto', 'header', or 'character'. If 'auto', use header-based for markdown, otherwise fallback.
+        """
         self.vector_db_path = vector_db_path
-                # Prefer semantic chunking using NLTKTextSplitter (sentence-aware)
-        try:
-            self.text_splitter = NLTKTextSplitter(chunk_size=1000, chunk_overlap=100)
-        except Exception as e:
-            # Fallback to RecursiveCharacterTextSplitter if NLTK not installed
-            print("Warning: NLTK not available, falling back to character-based chunking. Error:", e)
-            self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-        self.embeddings = OllamaEmbeddings(model="nomic-embed-text")  # or sentence-transformers
+        self.embeddings = OllamaEmbeddings(model="nomic-embed-text")
         self.vectorstore = Chroma(persist_directory=self.vector_db_path, embedding_function=self.embeddings)
+        self.llm = OllamaLLM(model="llama3")  # Change model as needed
+        self.chunking_strategy = chunking_strategy
+        logging.info(f"Initialized RAGPipeline (modular, advanced, NLTK-free, chunking_strategy={chunking_strategy})")
+
+    def _get_text_splitter(self, docs, file_path: str):
+        """
+        Use MarkdownHeaderTextSplitter if markdown, else fallback to RecursiveCharacterTextSplitter.
+        """
+        ext = os.path.splitext(file_path)[-1].lower()
+        if self.chunking_strategy == "header" or (self.chunking_strategy == "auto" and ext in ['.md', '.markdown']):
+            try:
+                return MarkdownHeaderTextSplitter(headers_to_split_on=["#", "##", "###"], chunk_size=1000, chunk_overlap=100)
+            except Exception as e:
+                logging.warning(f"Header splitter failed: {e}, falling back to character splitter.")
+        # Fallback
+        return RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
 
     def load_document(self, file_path: str) -> List[Document]:
         ext = os.path.splitext(file_path)[-1].lower()
@@ -39,8 +59,12 @@ class RAGPipeline:
         return docs
 
     def ingest(self, file_path: str, metadata: dict = None):
+        """
+        Ingests a file using adaptive chunking (header-based for markdown, otherwise character-based).
+        """
         docs = self.load_document(file_path)
-        splits = self.text_splitter.split_documents(docs)
+        splitter = self._get_text_splitter(docs, file_path)
+        splits = splitter.split_documents(docs)
         # Attach file-level metadata
         for doc in splits:
             doc.metadata = doc.metadata or {}
@@ -48,8 +72,26 @@ class RAGPipeline:
                 doc.metadata.update(metadata)
             doc.metadata['source_file'] = file_path
         self.vectorstore.add_documents(splits)
-        # Persistence is automatic in langchain_chroma when using persist_directory.
+        logging.info(f"Ingested {len(splits)} chunks from {file_path} using {splitter.__class__.__name__}")
 
-    def retrieve(self, query: str, k: int = 4) -> List[Document]:
+    def retrieve(self, query: str, k: int = 4, keywords: Optional[list] = None, metadata_filter: Optional[dict] = None) -> List[Document]:
+        """
+        Hybrid retrieval: combines vector search, keyword, and metadata filtering. Always uses strict top-k retrieval (no MMR).
+        :param query: user query
+        :param k: number of results
+        :param keywords: list of keywords to boost/filter
+        :param metadata_filter: dict of metadata filters (e.g. {"source_file": ...})
+        """
         retriever = self.vectorstore.as_retriever(search_kwargs={"k": k})
-        return retriever.invoke(query)
+        if metadata_filter:
+            results = retriever.invoke(query, filter=metadata_filter)
+        else:
+            results = retriever.invoke(query)
+        # Keyword filter/boost
+        if keywords:
+            keyword_results = [doc for doc in results if any(kw.lower() in doc.page_content.lower() for kw in keywords)]
+            # Merge, deduplicate, and sort (keyword hits first)
+            unique = {id(doc): doc for doc in keyword_results + results}
+            results = list(unique.values())[:k]
+        logging.info(f"Hybrid retrieval for query '{query}': {len(results)} docs (strict top-k, keywords={keywords}, metadata={metadata_filter})")
+        return results

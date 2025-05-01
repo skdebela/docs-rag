@@ -11,17 +11,29 @@ def chat_service(
     file_id: Optional[int],
     db: Session,
     rag_pipeline,
-    ollama_llm
+    ollama_llm,
+    keywords: Optional[list] = None,
+    metadata_filter: Optional[dict] = None,
+    k: Optional[int] = 4
 ) -> Dict[str, Any]:
     """
-    Handles chat logic: retrieves relevant docs, constructs prompt, calls LLM, logs history.
+    Handles chat logic: retrieves relevant docs (hybrid/vector/keyword/MMR), constructs prompt, calls LLM, logs history.
     """
     db_files = db.query(DBFile).all()
     if not db_files:
         safe_log_gotcha(f"[Chat] No files in DB at {datetime.now().isoformat()}")
         return {"answer": "No files are available for answering. Please upload a file first.", "sources": []}
-    # Always retrieve from all loaded files (all in DB)
-    docs = rag_pipeline.retrieve(question, k=4)
+    # Metadata filter by file_id if provided
+    if file_id:
+        if metadata_filter is None:
+            metadata_filter = {}
+        metadata_filter["file_id"] = file_id
+    docs = rag_pipeline.retrieve(
+        question,
+        k=k,
+        keywords=keywords,
+        metadata_filter=metadata_filter
+    )
     # Filter docs so only those whose file_id is present in the current DB are used
     current_file_ids = {str(f.id) for f in db_files}
     docs = [d for d in docs if str(d.metadata.get("file_id")) in current_file_ids]
@@ -51,4 +63,21 @@ def chat_service(
     )
     db.add(chat)
     db.commit()
-    return {"answer": answer, "sources": [d.metadata for d in docs]}
+    # Only show unique document names in sources
+    import os, re
+    # Count occurrences of each file among retrieved docs
+    file_counts = {}
+    for d in docs:
+        name = d.metadata.get('source') or d.metadata.get('filename') or d.metadata.get('file_name')
+        if name:
+            base = os.path.basename(name)
+            base = re.sub(r'^[0-9a-fA-F-]+_', '', base)
+        else:
+            base = 'Unknown File'
+        file_counts[base] = file_counts.get(base, 0) + 1
+    # Find the file with the most chunks in the answer
+    if file_counts:
+        most_relevant_file = max(file_counts, key=file_counts.get)
+    else:
+        most_relevant_file = 'Unknown File'
+    return {"answer": answer, "sources": [most_relevant_file]}

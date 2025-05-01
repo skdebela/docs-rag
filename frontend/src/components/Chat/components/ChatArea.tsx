@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Box, VStack, Spinner, Flex, Alert, AlertIcon } from '@chakra-ui/react';
 import { useChatStore } from 'state/chatStore';
 import ChatBubble from './ChatBubble';
@@ -12,6 +12,16 @@ const ChatArea = () => {
   const noFiles = !files || files.length === 0;
   const loading = useChatStore((state) => state.loading);
   const error = useChatStore((state) => state.error);
+
+  // Ref for the scrollable chat area
+  const chatScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Auto-scroll to bottom when messages change
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [messages, loading]);
 
   return (
     <Flex direction="column" h="100%" minH={0} flex="1" px={{ base: 2, sm: 4, md: 8 }} pb={{ base: 4, md: 6 }}>
@@ -28,16 +38,32 @@ const ChatArea = () => {
                 {error}
               </Box>
             )}
-            <VStack spacing={3} align="stretch" h="100%" maxH="100%">
-              {messages.map((msg, idx) => (
-                <ChatBubble key={idx} message={msg} />
-              ))}
-              {loading && (
-                <Box alignSelf="flex-start" p={2}>
-                  <Spinner size="sm" color="blue.400" />
-                </Box>
-              )}
-            </VStack>
+            {/* Scrollable chat area */}
+            <Box
+              ref={chatScrollRef}
+              h={{ base: '48vh', md: '60vh' }}
+              maxH={{ base: '48vh', md: '60vh' }}
+              overflowY="auto"
+              w="100%"
+              px={1}
+              tabIndex={0}
+              aria-label="Chat messages"
+              bg="white"
+              borderRadius="md"
+              boxShadow="xs"
+              _focus={{ outline: '2px solid #3182ce' }}
+            >
+              <VStack spacing={3} align="stretch" w="100%">
+                {messages.map((msg, idx) => (
+                  <ChatBubble key={idx} message={msg} />
+                ))}
+                {loading && (
+                  <Box alignSelf="flex-start" p={2}>
+                    <Spinner size="sm" color="blue.400" />
+                  </Box>
+                )}
+              </VStack>
+            </Box>
           </>
         )}
       </Box>

@@ -178,16 +178,31 @@ def delete_file(file_id: int, db: Session = Depends(get_db)) -> dict:
 
 from app.services.chat_service import chat_service
 
+from app.schemas import ChatRequest
+
 @app.post("/api/chat", response_model=ChatResponse)
-def chat(question: str = Query(..., min_length=3, max_length=500), file_id: int = Query(None), db: Session = Depends(get_db)) -> ChatResponse:
+def chat(
+    chat_req: ChatRequest = None,
+    question: str = Query(None, min_length=3, max_length=500),
+    file_id: int = Query(None),
+    db: Session = Depends(get_db)
+) -> ChatResponse:
     """
-    Chat endpoint: delegates business logic to chat_service for modularity.
-    Validates question length (3-500 chars).
+    Chat endpoint: supports hybrid retrieval (keywords, metadata, MMR, k). Accepts ChatRequest body or legacy query params.
     """
+    # Prefer body if provided, else fallback to query params for legacy clients
+    if chat_req is not None:
+        req = chat_req
+    else:
+        req = ChatRequest(question=question, file_id=file_id)
     return ChatResponse(**chat_service(
-        question=question,
-        file_id=file_id,
+        question=req.question,
+        file_id=req.file_id,
         db=db,
         rag_pipeline=rag_pipeline,
-        ollama_llm=ollama_llm
+        ollama_llm=ollama_llm,
+        keywords=req.keywords,
+        metadata_filter=req.metadata_filter,
+
+        k=req.k
     ))

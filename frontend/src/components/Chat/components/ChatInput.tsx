@@ -7,6 +7,7 @@ import { useFilesStore } from 'state/filesStore';
 // Chat input is disabled if no files are uploaded
 const ChatInput = () => {
   const [value, setValue] = useState('');
+
   const sendChat = useChatStore((state) => state.sendChat);
   const loading = useChatStore((state) => state.loading);
   const error = useChatStore((state) => state.error);
@@ -17,7 +18,6 @@ const ChatInput = () => {
   const handleSend = async () => {
     if (!value.trim() || loading || chatDisabled) return; // Disable send if no files are uploaded
     await sendChat(value);
-
     setValue('');
   };
 
@@ -37,6 +37,7 @@ const ChatInput = () => {
 
   return (
     <HStack spacing={2}>
+
       <Input
         value={value}
         onChange={(e) => setValue(e.target.value)}
