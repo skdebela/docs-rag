@@ -23,12 +23,22 @@ This backend implements a privacy-preserving, local-first Retrieval-Augmented Ge
 /backend
 ├── app/
 │   ├── main.py            # FastAPI entrypoint
-│   ├── api/               # API route modules
+│   ├── api/               # API route modules (init only)
 │   ├── db/                # DB models and session
 │   ├── rag/               # RAG pipeline (Langchain, Ollama, ChromaDB)
-│   ├── utils/             # Utility functions
-│   └── config.py          # Settings and constants
+│   ├── error_handlers.py  # Centralized error handling
+│   ├── log_utils.py       # Logging for gotchas/ops
+│   ├── schemas.py         # Pydantic models
+│   ├── services/          # Business logic (file, chat, admin)
+│   ├── gotchas.md         # Backend-specific gotchas
+│   ├── implementation_details.md # Backend implementation notes
+│   └── quick_reference.md # Backend quick reference
+├── data/                  # SQLite DB and ChromaDB storage
+├── scripts/               # Utility scripts
 ├── requirements.txt
+├── gotchas.md             # Project-wide gotchas
+├── implementation_details.md # Project-wide implementation notes
+├── quick_reference.md     # Project-wide quick reference
 └── README.md
 ```
 
