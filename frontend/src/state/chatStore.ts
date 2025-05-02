@@ -15,10 +15,12 @@ interface ChatState {
   clearChat: () => void;
   sendChat: (
     question: string,
-    fileId?: string | null,
-    keywords?: string[],
-    metadataFilter?: Record<string, any>,
-    k?: number
+    options?: {
+      fileId?: string | null;
+      keywords?: string[];
+      metadataFilter?: Record<string, any>;
+      k?: number;
+    }
   ) => Promise<void>;
 }
 
@@ -37,39 +39,26 @@ export const useChatStore = create<ChatState>((set) => ({
    */
   sendChat: async (
     question: string,
-    fileId?: string | null,
-    keywords?: string[],
-    metadataFilter?: Record<string, any>,
-    useMMR?: boolean,
-    k?: number
+    options?: {
+      fileId?: string | null;
+      keywords?: string[];
+      metadataFilter?: Record<string, any>;
+      k?: number;
+    }
   ) => {
     set({ loading: true, error: null });
     try {
       set((state) => ({ messages: [...state.messages, { sender: 'user', text: question }] }));
-      // If any advanced options provided, use new API signature
-      if (keywords || metadataFilter || k !== undefined) {
-        const response = await sendChatApi({
-          question,
-          fileId,
-          keywords,
-          metadataFilter,
-
-          k,
-        });
-        set((state) => ({
-          messages: [...state.messages, { sender: 'ai', text: response.answer, sources: response.sources }],
-          loading: false,
-          error: null,
-        }));
-      } else {
-        // Legacy usage
-        const response = await sendChatApi(fileId ?? null, question);
-        set((state) => ({
-          messages: [...state.messages, { sender: 'ai', text: response.answer, sources: response.sources }],
-          loading: false,
-          error: null,
-        }));
-      }
+      // Use options-object-based API only
+      const response = await sendChatApi({
+        question,
+        ...options,
+      });
+      set((state) => ({
+        messages: [...state.messages, { sender: 'ai', text: response.answer, sources: response.sources }],
+        loading: false,
+        error: null,
+      }));
     } catch (err: any) {
       set({ loading: false, error: typeof err === 'string' ? err : 'Chat failed' });
     }

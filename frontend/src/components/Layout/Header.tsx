@@ -1,9 +1,10 @@
 import React from "react";
-import { Flex, Heading } from '@chakra-ui/react';
+import { Flex } from '@chakra-ui/react';
+import LLMStatus from './LLMStatus';
 
 const Header = () => (
-  <Flex as="header" align="center" p={4} boxShadow="sm" bg="white" zIndex={10}>
-    <Heading size="md" color="blue.600">Local Chat RAG</Heading>
+  <Flex as="header" align="center" p={4} boxShadow="sm" bg="white" zIndex={10} justify="space-between">
+    <LLMStatus />
   </Flex>
 );
 

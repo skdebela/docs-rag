@@ -2,6 +2,7 @@ import React from "react";
 import { Flex, Box } from '@chakra-ui/react';
 import { FilesSidebar } from '../Files';
 import { ChatArea } from '../Chat';
+import Header from './Header';
 
 const MainLayout = () => (
   <Flex height="100vh" direction="row" overflow="hidden" bg="#fff">
@@ -13,11 +14,10 @@ const MainLayout = () => (
       display="flex"
       flexDirection="column"
       minWidth={0}
-      px={{ base: 2, sm: 4, md: 8 }}
-      py={{ base: 2, md: 6 }}
       height="100vh"
       overflow="hidden"
     >
+      <Header />
       <Box
         w="100%"
         maxW="900px"
@@ -27,6 +27,8 @@ const MainLayout = () => (
         flex="1"
         minHeight={0}
         overflow="hidden"
+        px={{ base: 2, sm: 4, md: 8 }}
+        py={{ base: 2, md: 6 }}
       >
         <ChatArea />
       </Box>

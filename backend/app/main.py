@@ -93,15 +93,21 @@ def health_check():
         llm_ok = True
         llm_msg = "OK"
         _ = ollama_llm.invoke("Health check?")
+        llm_model = getattr(ollama_llm, 'model', None)
+        if not llm_model and hasattr(ollama_llm, '__dict__'):
+            llm_model = ollama_llm.__dict__.get('model')
     except Exception as e:
         llm_ok = False
         llm_msg = str(e)
+        llm_model = getattr(ollama_llm, 'model', None)
+        if not llm_model and hasattr(ollama_llm, '__dict__'):
+            llm_model = ollama_llm.__dict__.get('model')
     status = "ok" if all([db_ok, vec_ok, llm_ok]) else "degraded"
     return {
         "status": status,
         "db": {"ok": db_ok, "msg": db_msg},
         "vectorstore": {"ok": vec_ok, "msg": vec_msg},
-        "llm": {"ok": llm_ok, "msg": llm_msg}
+        "llm": {"ok": llm_ok, "msg": llm_msg, "model": llm_model}
     }
 
 from app.services.file_service import upload_file as upload_file_service

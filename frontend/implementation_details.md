@@ -1,5 +1,15 @@
 # Implementation Details: Frontend Refactor (2025-04-30)
 
+## [2025-05-02] Breaking Change: sendChat API Refactor
+- `sendChat` in `chatStore.ts` now takes an `options` object for all parameters except `question`.
+- Removed `useMMR` parameter (was unused in API call).
+- Updated `ChatState` interface accordingly.
+- **Breaking:** All callers of `sendChat` must use the new signature:
+  ```ts
+  sendChat(question, { fileId, keywords, metadataFilter, k })
+  ```
+- Motivation: Prevent parameter order/type errors, improve extensibility and type safety.
+
 ## Motivation
 - Improve maintainability, testability, and responsiveness
 - Reduce component size and responsibility
