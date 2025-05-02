@@ -21,94 +21,102 @@ A **local, privacy-first Retrieval-Augmented Generation (RAG) chat app**. Upload
 ### 1. **Requirements**
 - Python 3.9+
 - Node.js 18+
-- [Ollama](https://ollama.com/) (for LLMs)
-
-### 2. **Clone the Repository**
-
-```bash
-git clone https://github.com/your-username/local-chat-rag.git
-cd local-chat-rag
-```
+- [Ollama](https://ollama.com/) (for local LLMs and embeddings)
 
 ---
 
-### 3. **Backend Setup**
+## 🚀 Quick Setup Checklist
 
-1. **Create and activate a Python virtual environment:**
-   ```bash
-   cd backend
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
-2. **Install Python dependencies:**
-   ```bash
-   pip install --upgrade pip
-   pip install -r requirements.txt
-   ```
-   > For advanced details, see [`backend/README.md`](backend/README.md).
+1. **Install Ollama** (for local LLM and embeddings)
+2. **Pull required models**: `mistral` (chat) and `nomic-embed-text` (embeddings)
+3. **Start the Ollama server**: `ollama serve` (must be running for backend to work)
+4. **Set up backend** (Python, FastAPI)
+5. **Set up frontend** (Node.js, Vite)
+6. **Open the app** in your browser: [http://localhost:5173](http://localhost:5173)
 
 ---
 
-### 4. **Frontend Setup**
+### 2. Install Ollama and Required Models
+- **Download Ollama:** [ollama.com/download](https://ollama.com/download) (macOS, Windows, Linux)
+- **Or via Homebrew (macOS):**
+  ```bash
+  brew install ollama
+  ```
+- **Start the Ollama server:** (must be running for backend to work)
+  ```bash
+  ollama serve
+  ```
+- **Pull required models:**
+  ```bash
+  ollama pull mistral
+  ollama pull nomic-embed-text
+  ```
+  - `mistral`: Used for chat and answering questions
+  - `nomic-embed-text`: Used for document embeddings
+  > You can substitute `mistral` with any compatible model (e.g. `llama3`, `llama2`), but the backend defaults to `mistral`.
 
-1. **Install Node.js dependencies:**
-   ```bash
-   cd frontend
-   npm install
-   ```
-   > For advanced details, see [`frontend/README.md`](frontend/README.md).
+### 3. Backend Setup (FastAPI)
+- **Create and activate a virtual environment:**
+  ```bash
+  cd backend
+  python -m venv .venv
+  source .venv/bin/activate
+  ```
+- **Install Python dependencies:**
+  ```bash
+  pip install --upgrade pip
+  pip install -r requirements.txt
+  ```
+- **Start the backend server:**
+  ```bash
+  uvicorn app.main:app --reload
+  ```
+  - The backend API will be available at: [http://localhost:8000/api](http://localhost:8000/api)
 
----
-
-### 5. **Ollama Installation & Model Setup**
-
-1. **Install Ollama:**
-   - Download and install from [ollama.com/download](https://ollama.com/download) (macOS, Windows, Linux)
-   - Or use Homebrew (macOS):
-     ```bash
-     brew install ollama
-     ```
-2. **Start Ollama server:**
-   ```bash
-   ollama serve
-   ```
-3. **Pull a compatible LLM model (e.g., mistral, llama2, phi3):**
-   ```bash
-   ollama pull mistral
-   # or
-   ollama pull llama2
-   ollama pull phi3
-   ```
-   > The backend defaults to `mistral`. You can change the model in `backend/app/main.py`.
-
----
-
-### 6. **Run the Application**
-
-#### Backend (FastAPI)
-```bash
-cd backend
-source .venv/bin/activate
-uvicorn app.main:app --reload
-```
-
-#### Frontend (Vite)
-```bash
-cd frontend
-npm run dev
-```
-
-- Frontend: [http://localhost:5173](http://localhost:5173)
-- Backend API: [http://localhost:8000/api](http://localhost:8000/api)
+### 4. Frontend Setup (Vite)
+- **Install Node.js dependencies:**
+  ```bash
+  cd frontend
+  npm install
+  ```
+- **Start the frontend dev server:**
+  ```bash
+  npm run dev
+  ```
+  - The frontend app will be available at: [http://localhost:5173](http://localhost:5173)
 
 ---
 
-### 7. **Troubleshooting & Tips**
-- **Ollama not running:** Ensure you started it with `ollama serve` and pulled a model.
-- **Python dependency errors:** Make sure your virtual environment is activated and `pip` is up to date.
-- **Node/npm errors:** Use Node.js 18+ and delete/reinstall `node_modules` if issues persist.
-- **PDF/DOCX parsing errors:** Install `libmagic` and `poppler-utils` (see above).
-- **For more help:** See [`backend/gotchas.md`](backend/app/gotchas.md) and [`backend/implementation_details.md`](backend/app/implementation_details.md).
+## ✅ Quick Setup Checklist
+- [ ] Ollama installed
+- [ ] `mistral` and `nomic-embed-text` models pulled
+- [ ] `ollama serve` running
+- [ ] Backend running at [http://localhost:8000/api](http://localhost:8000/api)
+- [ ] Frontend running at [http://localhost:5173](http://localhost:5173)
+
+---
+
+## How to Use the App
+- Open [http://localhost:5173](http://localhost:5173) in your browser.
+- Upload your files using the sidebar.
+- Ask questions in the chat box; answers will cite document sources.
+- All processing is local—your data never leaves your device.
+
+---
+
+## Troubleshooting & Tips
+- **Ollama not running or model errors:**
+  - Make sure `ollama serve` is running in a terminal window **before** starting the backend.
+  - Ensure you have pulled both `llama3` and `nomic-embed-text` models.
+  - You can check running models with `ollama list`.
+- **Python dependency errors:**
+  - Make sure your virtual environment is activated and `pip` is up to date.
+- **Node/npm errors:**
+  - Use Node.js 18+ and delete/reinstall `node_modules` if issues persist.
+- **PDF/DOCX parsing errors:**
+  - Install `libmagic` and `poppler-utils` (see backend gotchas).
+- **For more help:**
+  - See [`backend/gotchas.md`](backend/app/gotchas.md) and [`backend/implementation_details.md`](backend/app/implementation_details.md).
 
 ---
 
@@ -158,13 +166,6 @@ ChatRAG/
 ## Documentation & Policies
 - All operational quirks, architecture decisions, and gotchas are logged in `backend/implementation_details.md`, `gotchas.md`, and `quick_reference.md`.
 - Strict documentation and code quality policies are followed—see project docs for details.
-
----
-
-## Troubleshooting
-- **Ollama not running:** Start it with `ollama serve` and ensure your model is pulled.
-- **500 errors on chat:** Check backend logs for missing models or misconfigurations.
-- **Sources show `[object Object]`:** This is fixed—sources are now deduplicated and display filenames.
 
 ---
 
