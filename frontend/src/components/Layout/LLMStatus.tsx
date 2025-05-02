@@ -30,7 +30,10 @@ export default function LLMStatus() {
       </span>
       {!llm.ok && (
         <div style={{ color: 'red', marginTop: 2 }}>
-          {llm.msg}
+          Unable to connect to the LLM backend. This usually means the Ollama server is not running or is unreachable.<br />
+          <span style={{ fontSize: 12, color: '#a00' }}>
+            Details: {llm.msg}
+          </span>
         </div>
       )}
     </div>

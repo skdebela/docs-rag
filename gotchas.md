@@ -49,7 +49,12 @@
 
 [2025-04-29T14:57:56+02:00] **Solution Update:** Added /api/admin/clear_all endpoint and AdminPanel UI for full app reset. This deletes all files and chat history from both DB and vectorstore, guarantees a fresh start, and keeps all layers in sync. DB is always the source of truth; vectorstore is wiped and reloaded to match. Use this if you ever suspect a desync or want a clean slate.
 
-[2025-04-29T14:23:41+02:00] **Persistent Gotcha:** Deleted files still referenced in RAG/chat after deletion
+## Dead Code Removal (2025-05-02)
+- Deleted `backend/app/rag/pipeline_modular.py` (ModularRAGPipeline) as it was not referenced anywhere in production code.
+- Only `RAGPipeline` is used in backend entrypoint and services.
+- If ModularRAGPipeline is needed in the future, restore from version control and refactor as a utility.
+
+[2025-05-02T22:38:49+02:00] **Persistent Gotcha:** Deleted files still referenced in RAG/chat after deletion
 - **Symptom:** Chat answers reference files that were deleted from the sidebar and database.
 - **Root Cause:** ChromaDB/LangChain vectorstore does not fully remove embeddings unless `persist()` is called and the vectorstore is reloaded. In-memory cache or on-disk state may get out of sync.
 - **Solution:** After any vectorstore deletion, always call `persist()` and reinitialize the vectorstore object. See implementation in `main.py`.
@@ -87,3 +92,5 @@
 [2025-05-02T12:31:35.886484] [init_db] Database initialized successfully.
 [2025-05-02T12:37:55.884577] [init_db] Database initialized successfully.
 [2025-05-02T12:41:49.232525] [init_db] Database initialized successfully.
+[2025-05-02T16:02:48.456745] [init_db] Database initialized successfully.
+[2025-05-02T22:41:39.354171] [init_db] Database initialized successfully.

@@ -29,4 +29,9 @@
 
 ---
 
-_Last updated: 2025-04-29 22:16:48+02:00_
+## RAG Pipeline Consolidation (2025-05-02)
+- Removed `rag/pipeline_modular.py` and the `ModularRAGPipeline` class.
+- Only `RAGPipeline` (in `rag/pipeline.py`) is used by the backend and referenced in `main.py`.
+- Rationale: Avoid code duplication and ensure a single source of truth for retrieval logic.
+
+_Last updated: 2025-05-02 22:38:49+02:00_

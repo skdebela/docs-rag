@@ -65,6 +65,14 @@
 - **Gemini-style UI/UX**: Minimal, accessible, with clear separation between chat and file controls.
 - **Rationale**: Ensures robust, user-friendly experience, prevents UI/backend drift, and supports future backend evolution.
 
+## RAG Pipeline Consolidation (2025-05-02)
+- Removed `app/rag/pipeline_modular.py` and the `ModularRAGPipeline` class.
+- Only `RAGPipeline` (in `app/rag/pipeline.py`) is used by the backend and referenced in `main.py`.
+- Rationale: Avoid code duplication, reduce maintenance overhead, and ensure a single source of truth for RAG logic.
+- All ingestion, retrieval, and LLM logic is now in `RAGPipeline`.
+
+_Last updated: 2025-05-02 22:38:49+02:00_
+
 ## References
 - Context7 Langchain docs (April 2025): RAG pipeline, loaders, ChromaDB, Ollama embeddings.
 

@@ -23,34 +23,72 @@ A **local, privacy-first Retrieval-Augmented Generation (RAG) chat app**. Upload
 - Node.js 18+
 - [Ollama](https://ollama.com/) (for LLMs)
 
-### 2. **Setup**
+### 2. **Clone the Repository**
 
-#### Backend
 ```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+git clone https://github.com/your-username/local-chat-rag.git
+cd local-chat-rag
 ```
 
-#### Frontend
-```bash
-cd frontend
-npm install
-```
+---
 
-#### LLM Model (Ollama)
-Ensure [Ollama](https://ollama.com/) is installed and running.
-```bash
-ollama pull mistral  # or llama2, phi3, etc.
-ollama serve
-```
+### 3. **Backend Setup**
 
-### 3. **Run the App**
+1. **Create and activate a Python virtual environment:**
+   ```bash
+   cd backend
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
+2. **Install Python dependencies:**
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+   > For advanced details, see [`backend/README.md`](backend/README.md).
+
+---
+
+### 4. **Frontend Setup**
+
+1. **Install Node.js dependencies:**
+   ```bash
+   cd frontend
+   npm install
+   ```
+   > For advanced details, see [`frontend/README.md`](frontend/README.md).
+
+---
+
+### 5. **Ollama Installation & Model Setup**
+
+1. **Install Ollama:**
+   - Download and install from [ollama.com/download](https://ollama.com/download) (macOS, Windows, Linux)
+   - Or use Homebrew (macOS):
+     ```bash
+     brew install ollama
+     ```
+2. **Start Ollama server:**
+   ```bash
+   ollama serve
+   ```
+3. **Pull a compatible LLM model (e.g., mistral, llama2, phi3):**
+   ```bash
+   ollama pull mistral
+   # or
+   ollama pull llama2
+   ollama pull phi3
+   ```
+   > The backend defaults to `mistral`. You can change the model in `backend/app/main.py`.
+
+---
+
+### 6. **Run the Application**
 
 #### Backend (FastAPI)
 ```bash
 cd backend
+source .venv/bin/activate
 uvicorn app.main:app --reload
 ```
 
@@ -62,6 +100,15 @@ npm run dev
 
 - Frontend: [http://localhost:5173](http://localhost:5173)
 - Backend API: [http://localhost:8000/api](http://localhost:8000/api)
+
+---
+
+### 7. **Troubleshooting & Tips**
+- **Ollama not running:** Ensure you started it with `ollama serve` and pulled a model.
+- **Python dependency errors:** Make sure your virtual environment is activated and `pip` is up to date.
+- **Node/npm errors:** Use Node.js 18+ and delete/reinstall `node_modules` if issues persist.
+- **PDF/DOCX parsing errors:** Install `libmagic` and `poppler-utils` (see above).
+- **For more help:** See [`backend/gotchas.md`](backend/app/gotchas.md) and [`backend/implementation_details.md`](backend/app/implementation_details.md).
 
 ---
 

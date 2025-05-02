@@ -19,4 +19,9 @@
 
 ---
 
-_Last updated: 2025-04-29 22:16:48+02:00_
+## Dead Code Removal (2025-05-02)
+- Deleted `rag/pipeline_modular.py` (ModularRAGPipeline) as it was not referenced anywhere in production code.
+- Only `RAGPipeline` is used in backend entrypoint and services.
+- If ModularRAGPipeline is needed in the future, restore from version control and refactor as a utility.
+
+_Last updated: 2025-05-02 22:38:49+02:00_
