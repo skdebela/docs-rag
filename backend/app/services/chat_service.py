@@ -4,6 +4,8 @@ from app.log_utils import safe_log_gotcha
 from datetime import datetime
 from fastapi import HTTPException
 from typing import Optional, List, Dict, Any
+from tenacity import retry, stop_after_attempt, wait_exponential
+import time
 
 # The rag_pipeline and ollama_llm must be injected by the caller to avoid circular imports.
 def chat_service(
@@ -11,13 +13,14 @@ def chat_service(
     file_id: Optional[int],
     db: Session,
     rag_pipeline,
-    ollama_llm,
+    llm,
     keywords: Optional[list] = None,
     metadata_filter: Optional[dict] = None,
     k: Optional[int] = 4
 ) -> Dict[str, Any]:
     """
     Handles chat logic: retrieves relevant docs (hybrid/vector/keyword/MMR), constructs prompt, calls LLM, logs history.
+    Includes rate limit handling and retries.
     """
     db_files = db.query(DBFile).all()
     if not db_files:
@@ -47,18 +50,33 @@ def chat_service(
         "If you don't know the answer, say so.\n"
     )
     prompt = f"{system_prompt}Context:\n{context}\n\nQuestion: {question}\nAnswer:"
-    # Call LLM (Ollama)
+    
+    # Call LLM with retry for rate limits
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+    def get_llm_response():
+        try:
+            return llm.invoke(prompt)
+        except Exception as e:
+            if "quota" in str(e).lower() or "rate" in str(e).lower():
+                safe_log_gotcha(f"[Chat] Rate limit hit, retrying: {e}")
+                time.sleep(1)  # Rate limit protection
+                raise  # Retry
+            raise HTTPException(status_code=500, detail=f"LLM inference failed: {str(e)}")
+    
     try:
-        answer = ollama_llm.invoke(prompt)
+        answer = get_llm_response()
+        # Extract content from AIMessage
+        answer_content = answer.content if hasattr(answer, 'content') else str(answer)
     except Exception as e:
-        safe_log_gotcha(f"[Chat] LLM inference failed: {str(e)} at {datetime.now().isoformat()}")
-        raise HTTPException(status_code=500, detail=f"LLM inference failed: {str(e)}")
+        safe_log_gotcha(f"[Chat] LLM inference failed after retries: {str(e)} at {datetime.now().isoformat()}")
+        raise HTTPException(status_code=500, detail=f"LLM inference failed after retries: {str(e)}")
+    
     # Log chat history
     chat = ChatHistory(
         user_id=None,
         file_id=file_id,
         question=question,
-        answer=answer,
+        answer=answer_content,
         timestamp=datetime.utcnow()
     )
     db.add(chat)
@@ -80,4 +98,4 @@ def chat_service(
         most_relevant_file = max(file_counts, key=file_counts.get)
     else:
         most_relevant_file = 'Unknown File'
-    return {"answer": answer, "sources": [most_relevant_file]}
+    return {"answer": answer_content, "sources": [most_relevant_file]}

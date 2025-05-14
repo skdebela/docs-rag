@@ -1,17 +1,16 @@
-# Local Chat RAG
+# RAG Chat
 
-A **local, privacy-first Retrieval-Augmented Generation (RAG) chat app**. Upload documents, ask questions, and get answers with sources—powered by open-source LLMs running on your own machine.
+A **privacy-focused Retrieval-Augmented Generation (RAG) chat app** powered by Google's Gemini models. Upload documents, ask questions, and get answers with sources—all while maintaining control over your data.
 
 ---
 
 ## Features
 
-- **Local RAG Pipeline**: No cloud, no data leaks—everything runs on your machine.
+- **Gemini-Powered RAG Pipeline**: Uses Google's state-of-the-art Gemini models for both chat and embeddings.
 - **File Upload & Parsing**: Supports DOCX, PDF, and more (via `unstructured`, `python-docx`, `pdfplumber`).
 - **Modern UI**: Gemini-style, minimal, and accessible. Built with Vite, React, TypeScript, Zustand, Chakra UI.
 - **Chat with Sources**: Ask questions and see which documents/sections the answer comes from.
 - **FastAPI Backend**: Robust API, clean separation from frontend, `/api` route organization.
-- **Ollama LLM Integration**: Use open-source models (Mistral, Llama2, etc.) locally via Ollama.
 - **Extensible & Documented**: Modular, testable code with strict documentation and change management policies.
 
 ---
@@ -21,39 +20,26 @@ A **local, privacy-first Retrieval-Augmented Generation (RAG) chat app**. Upload
 ### 1. **Requirements**
 - Python 3.9+
 - Node.js 18+
-- [Ollama](https://ollama.com/) (for local LLMs and embeddings)
+- Google Cloud API Key (for Gemini models)
 
 ---
 
 ## 🚀 Quick Setup Checklist
 
-1. **Install Ollama** (for local LLM and embeddings)
-2. **Pull required models**: `mistral` (chat) and `nomic-embed-text` (embeddings)
-3. **Start the Ollama server**: `ollama serve` (must be running for backend to work)
-4. **Set up backend** (Python, FastAPI)
-5. **Set up frontend** (Node.js, Vite)
-6. **Open the app** in your browser: [http://localhost:5173](http://localhost:5173)
+1. **Get a Google API Key** for Gemini models
+2. **Set up backend** (Python, FastAPI)
+3. **Set up frontend** (Node.js, Vite)
+4. **Open the app** in your browser: [http://localhost:5173](http://localhost:5173)
 
 ---
 
-### 2. Install Ollama and Required Models
-- **Download Ollama:** [ollama.com/download](https://ollama.com/download) (macOS, Windows, Linux)
-- **Or via Homebrew (macOS):**
+### 2. Get Google API Key
+- **Get API Key:** Visit [Google AI Studio](https://makersuite.google.com/app/apikey) to get your API key
+- **Set Environment Variable:**
   ```bash
-  brew install ollama
+  export GOOGLE_API_KEY="your-api-key-here"
   ```
-- **Start the Ollama server:** (must be running for backend to work)
-  ```bash
-  ollama serve
-  ```
-- **Pull required models:**
-  ```bash
-  ollama pull mistral
-  ollama pull nomic-embed-text
-  ```
-  - `mistral`: Used for chat and answering questions
-  - `nomic-embed-text`: Used for document embeddings
-  > You can substitute `mistral` with any compatible model (e.g. `llama3`, `llama2`), but the backend defaults to `mistral`.
+  > Make sure to keep your API key secure and never commit it to version control.
 
 ### 3. Backend Setup (FastAPI)
 - **Create and activate a virtual environment:**
@@ -88,9 +74,7 @@ A **local, privacy-first Retrieval-Augmented Generation (RAG) chat app**. Upload
 ---
 
 ## ✅ Quick Setup Checklist
-- [ ] Ollama installed
-- [ ] `mistral` and `nomic-embed-text` models pulled
-- [ ] `ollama serve` running
+- [ ] Google API key obtained and set as environment variable
 - [ ] Backend running at [http://localhost:8000/api](http://localhost:8000/api)
 - [ ] Frontend running at [http://localhost:5173](http://localhost:5173)
 
@@ -100,15 +84,14 @@ A **local, privacy-first Retrieval-Augmented Generation (RAG) chat app**. Upload
 - Open [http://localhost:5173](http://localhost:5173) in your browser.
 - Upload your files using the sidebar.
 - Ask questions in the chat box; answers will cite document sources.
-- All processing is local—your data never leaves your device.
+- All processing uses Google's Gemini models—your data is processed securely.
 
 ---
 
 ## Troubleshooting & Tips
-- **Ollama not running or model errors:**
-  - Make sure `ollama serve` is running in a terminal window **before** starting the backend.
-  - Ensure you have pulled both `llama3` and `nomic-embed-text` models.
-  - You can check running models with `ollama list`.
+- **API Key Issues:**
+  - Make sure `GOOGLE_API_KEY` environment variable is set correctly.
+  - Check that your API key has access to Gemini models.
 - **Python dependency errors:**
   - Make sure your virtual environment is activated and `pip` is up to date.
 - **Node/npm errors:**
@@ -120,19 +103,11 @@ A **local, privacy-first Retrieval-Augmented Generation (RAG) chat app**. Upload
 
 ---
 
-## Usage
-- **Upload files** in the sidebar.
-- **Ask questions** in the chat—answers are generated using your documents as context.
-- **Sources** are shown for every answer (deduplicated by file).
-- **All processing is local**—your data never leaves your device.
-
----
-
 ## Architecture
 
 - **Frontend**: Vite + React + TypeScript + Zustand + Chakra UI
 - **Backend**: FastAPI + SQLAlchemy + LangChain + ChromaDB + Unstructured
-- **LLM**: Ollama (Mistral, Llama2, etc.) via `langchain-ollama`
+- **LLM & Embeddings**: Google's Gemini models via `langchain-google-genai`
 - **RAG Pipeline**: Chunking, embedding, retrieval, and chat with sources
 
 ### Folder Structure
@@ -157,7 +132,7 @@ ChatRAG/
 ---
 
 ## Customization
-- **Change LLM Model:** Edit the model name in `backend/app/main.py` (`OllamaLLM(model="mistral")`).
+- **Change Gemini Model:** Edit the model name in `backend/app/main.py` (`ChatGoogleGenerativeAI(model="gemini-pro")`).
 - **Add File Types:** Extend file parsing in the backend pipeline.
 - **UI/UX:** Tweak Chakra UI theme or component structure in `frontend/src/components`.
 
@@ -171,7 +146,7 @@ ChatRAG/
 
 ## Credits
 - Built by Tarek Adam Mustafa and contributors.
-- Powered by open-source: [Ollama](https://ollama.com/), [LangChain](https://github.com/langchain-ai/langchain), [ChromaDB](https://www.trychroma.com/), [Unstructured](https://unstructured.io/), [Chakra UI](https://chakra-ui.com/), [Vite](https://vitejs.dev/).
+- Powered by: [Google Gemini](https://deepmind.google/technologies/gemini/), [LangChain](https://github.com/langchain-ai/langchain), [ChromaDB](https://www.trychroma.com/), [Unstructured](https://unstructured.io/), [Chakra UI](https://chakra-ui.com/), [Vite](https://vitejs.dev/).
 
 ---
 

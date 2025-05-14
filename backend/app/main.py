@@ -12,15 +12,29 @@ import shutil
 import uuid
 from app.log_utils import safe_log_gotcha
 from app.schemas import FileUploadResponse, FileListItem, ChatResponse, AdminClearAllResponse
+from langchain_google_genai import ChatGoogleGenerativeAI
+import google.generativeai as genai
+from tenacity import retry, stop_after_attempt, wait_exponential
+import time
 
-# Use langchain-ollama for LLM integration (future-proof)
-from langchain_ollama import OllamaLLM
-ollama_llm = OllamaLLM(model="mistral")
+# Get Google API key from environment
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+if not GOOGLE_API_KEY:
+    raise ValueError("GOOGLE_API_KEY environment variable is required")
+
+# Configure Gemini
+genai.configure(api_key=GOOGLE_API_KEY)
+gemini_llm = ChatGoogleGenerativeAI(
+    model="gemini-2.0-flash",
+    convert_system_message_to_human=True,
+    temperature=0.7,
+    max_output_tokens=2048,
+)
 
 UPLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/files"))
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-app = FastAPI(title="Local-First RAG Chat App")
+app = FastAPI(title="RAG Chat App")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -41,7 +55,7 @@ os.makedirs(CHROMA_PATH, exist_ok=True)
 
 # Initialize DB and RAG pipeline
 init_db()
-rag_pipeline = RAGPipeline(vector_db_path=CHROMA_PATH)
+rag_pipeline = RAGPipeline(vector_db_path=CHROMA_PATH, api_key=GOOGLE_API_KEY)
 
 from fastapi import Header
 
@@ -92,16 +106,12 @@ def health_check():
     try:
         llm_ok = True
         llm_msg = "OK"
-        _ = ollama_llm.invoke("Health check?")
-        llm_model = getattr(ollama_llm, 'model', None)
-        if not llm_model and hasattr(ollama_llm, '__dict__'):
-            llm_model = ollama_llm.__dict__.get('model')
+        _ = gemini_llm.invoke("Health check?")
+        llm_model = "gemini-2.0-flash"
     except Exception as e:
         llm_ok = False
         llm_msg = str(e)
-        llm_model = getattr(ollama_llm, 'model', None)
-        if not llm_model and hasattr(ollama_llm, '__dict__'):
-            llm_model = ollama_llm.__dict__.get('model')
+        llm_model = "gemini-2.0-flash"
     status = "ok" if all([db_ok, vec_ok, llm_ok]) else "degraded"
     return {
         "status": status,
@@ -187,6 +197,7 @@ from app.services.chat_service import chat_service
 from app.schemas import ChatRequest
 
 @app.post("/api/chat", response_model=ChatResponse)
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
 def chat(
     chat_req: ChatRequest = None,
     question: str = Query(None, min_length=3, max_length=500),
@@ -195,20 +206,26 @@ def chat(
 ) -> ChatResponse:
     """
     Chat endpoint: supports hybrid retrieval (keywords, metadata, MMR, k). Accepts ChatRequest body or legacy query params.
+    Handles rate limits with retries.
     """
     # Prefer body if provided, else fallback to query params for legacy clients
     if chat_req is not None:
         req = chat_req
     else:
         req = ChatRequest(question=question, file_id=file_id)
-    return ChatResponse(**chat_service(
-        question=req.question,
-        file_id=req.file_id,
-        db=db,
-        rag_pipeline=rag_pipeline,
-        ollama_llm=ollama_llm,
-        keywords=req.keywords,
-        metadata_filter=req.metadata_filter,
-
-        k=req.k
-    ))
+    try:
+        return ChatResponse(**chat_service(
+            question=req.question,
+            file_id=req.file_id,
+            db=db,
+            rag_pipeline=rag_pipeline,
+            llm=gemini_llm,
+            keywords=req.keywords,
+            metadata_filter=req.metadata_filter,
+            k=req.k
+        ))
+    except Exception as e:
+        if "quota" in str(e).lower() or "rate" in str(e).lower():
+            safe_log_gotcha(f"[Chat] Rate limit hit, retrying: {e}")
+            raise  # Retry
+        raise HTTPException(status_code=500, detail=str(e))
